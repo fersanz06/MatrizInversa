@@ -5,7 +5,7 @@ public class MatrizInversa {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Tamaño de la matriz cuadrada: ");
+        System.out.print("Tamaño de la matriz: ");
         int n = scanner.nextInt();
 
         double[][] matriz = new double[n][n];
@@ -17,34 +17,53 @@ public class MatrizInversa {
             }
         }
 
-        System.out.println("Matriz:");
-        imprimir(matriz);
+        System.out.println("\nMatriz ingresada:");
+        imprimirMatriz(matriz);
 
         double det = determinante(matriz);
-        System.out.println("Determinante calculado: " + det);
-
-        double[][] inv = matrizInversa(matriz);
+        System.out.println("\nDeterminante: " + det);
 
         scanner.close();
     }
 
-    public static void imprimir(double[][] m) {
+    public static void imprimirMatriz(double[][] m) {
         for (double[] fila : m) {
-            for (double v : fila) {
-                System.out.print(v + " ");
+            for (double x : fila) {
+                System.out.print(x + " ");
             }
             System.out.println();
         }
     }
 
     public static double determinante(double[][] m) {
-        if (m.length == 2) {
-            return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        int n = m.length;
+
+        if (n == 1) return m[0][0];
+        if (n == 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+
+        double det = 0;
+
+        for (int col = 0; col < n; col++) {
+            det += m[0][col] * determinante(submatriz(m, 0, col));
         }
-        return 0;
+        return det;
     }
 
-    public static double[][] matrizInversa(double[][] m) {
-        return new double[m.length][m.length];
+    public static double[][] submatriz(double[][] m, int fila, int columna) {
+        int n = m.length;
+        double[][] sub = new double[n - 1][n - 1];
+
+        int r = 0;
+        for (int i = 0; i < n; i++) {
+            if (i == fila) continue;
+            int c = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == columna) continue;
+                sub[r][c] = m[i][j];
+                c++;
+            }
+            r++;
+        }
+        return sub;
     }
 }
