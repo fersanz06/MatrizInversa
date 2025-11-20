@@ -10,27 +10,24 @@ public class MatrizInversa {
 
         double[][] matriz = new double[n][n];
 
-        System.out.println("Ingresa los valores:");
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
                 matriz[i][j] = scanner.nextDouble();
-            }
-        }
 
         System.out.println("\nMatriz:");
-        imprimirMatriz(matriz);
+        imprimir(matriz);
 
         double det = determinante(matriz);
         System.out.println("\nDeterminante: " + det);
 
-        double[][] adj = adjunta(matriz);
-        System.out.println("\nAdjunta:");
-        imprimirMatriz(adj);
+        double[][] inv = matrizInversa(matriz);
+        System.out.println("\nInversa (incorrecta):");
+        imprimir(inv);
 
         scanner.close();
     }
 
-    public static void imprimirMatriz(double[][] m) {
+    public static void imprimir(double[][] m) {
         for (double[] f : m) {
             for (double v : f) System.out.print(v + " ");
             System.out.println();
@@ -46,39 +43,42 @@ public class MatrizInversa {
         double det = 0;
         for (int col = 0; col < n; col++) {
             det += Math.pow(-1, col) * m[0][col] *
-                    determinante(submatriz(m, 0, col));
+                    determinante(sub(m, 0, col));
         }
         return det;
     }
 
-    public static double[][] submatriz(double[][] m, int fila, int columna) {
+    public static double[][] sub(double[][] m, int fila, int columna) {
         int n = m.length;
-        double[][] sub = new double[n - 1][n - 1];
-        int r = 0;
+        double[][] r = new double[n - 1][n - 1];
+        int rr = 0;
 
         for (int i = 0; i < n; i++) {
             if (i == fila) continue;
-            int c = 0;
+            int cc = 0;
             for (int j = 0; j < n; j++) {
                 if (j == columna) continue;
-                sub[r][c] = m[i][j];
-                c++;
+                r[rr][cc++] = m[i][j];
             }
-            r++;
+            rr++;
         }
-        return sub;
+        return r;
     }
 
-    public static double[][] adjunta(double[][] m) {
+    public static double[][] matrizInversa(double[][] m) {
         int n = m.length;
+        double det = determinante(m);
+
         double[][] adj = new double[n][n];
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                adj[i][j] = Math.pow(-1, i + j) *
-                        determinante(submatriz(m, i, j));
-            }
-        }
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                adj[j][i] = Math.pow(-1, i + j) * determinante(sub(m, i, j));
+
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                adj[i][j] = (int)(adj[i][j] / det);
+
         return adj;
     }
 }
