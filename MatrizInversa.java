@@ -1,84 +1,108 @@
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class MatrizInversa {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Tamaño de la matriz: ");
-        int n = scanner.nextInt();
+        try (Scanner scanner = new Scanner(System.in)) {
 
-        double[][] matriz = new double[n][n];
+            System.out.print("Ingresa el tamaño de la matriz cuadrada (n x n): ");
+            int n = scanner.nextInt();
 
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                matriz[i][j] = scanner.nextDouble();
+            double[][] matriz = new double[n][n];
 
-        System.out.println("\nMatriz:");
-        imprimir(matriz);
+            System.out.println("\nIngresa los elementos de la matriz:");
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    System.out.print("Elemento [" + i + "][" + j + "]: ");
+                    matriz[i][j] = scanner.nextDouble();
+                }
+            }
 
-        double det = determinante(matriz);
-        System.out.println("\nDeterminante: " + det);
+            System.out.println("\nMatriz ingresada:");
+            imprimirMatriz(matriz);
 
-        double[][] inv = matrizInversa(matriz);
-        System.out.println("\nInversa (incorrecta):");
-        imprimir(inv);
+            double det = determinante(matriz);
+            System.out.println("\nDeterminante: " + det);
 
-        scanner.close();
+            if (det == 0) {
+                System.out.println("\nLa matriz NO tiene inversa.");
+                return;
+            }
+
+            double[][] inversa = matrizInversa(matriz);
+
+            System.out.println("\nMatriz inversa:");
+            imprimirMatriz(inversa);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
-    public static void imprimir(double[][] m) {
-        for (double[] f : m) {
-            for (double v : f) System.out.print(v + " ");
+    public static void imprimirMatriz(double[][] m) {
+        for (double[] fila : m) {
+            for (double val : fila) {
+                System.out.printf("%10.6f ", val);
+            }
             System.out.println();
         }
     }
 
-    public static double determinante(double[][] m) {
-        int n = m.length;
+    public static double determinante(double[][] matriz) {
+        int n = matriz.length;
 
-        if (n == 1) return m[0][0];
-        if (n == 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        if (n == 1) return matriz[0][0];
+        if (n == 2) return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0];
 
         double det = 0;
+
         for (int col = 0; col < n; col++) {
-            det += Math.pow(-1, col) * m[0][col] *
-                    determinante(sub(m, 0, col));
+            det += Math.pow(-1, col) * matriz[0][col] *
+                    determinante(submatriz(matriz, 0, col));
         }
         return det;
     }
 
-    public static double[][] sub(double[][] m, int fila, int columna) {
-        int n = m.length;
-        double[][] r = new double[n - 1][n - 1];
-        int rr = 0;
+    public static double[][] submatriz(double[][] matriz, int fila, int columna) {
+        int n = matriz.length;
+        double[][] sub = new double[n - 1][n - 1];
 
+        int r = 0;
         for (int i = 0; i < n; i++) {
             if (i == fila) continue;
-            int cc = 0;
+            int c = 0;
             for (int j = 0; j < n; j++) {
                 if (j == columna) continue;
-                r[rr][cc++] = m[i][j];
+                sub[r][c] = matriz[i][j];
+                c++;
             }
-            rr++;
+            r++;
         }
-        return r;
+
+        return sub;
     }
 
-    public static double[][] matrizInversa(double[][] m) {
-        int n = m.length;
-        double det = determinante(m);
+    public static double[][] matrizInversa(double[][] matriz) {
+        int n = matriz.length;
+        double det = determinante(matriz);
 
-        double[][] adj = new double[n][n];
+        double[][] adjunta = new double[n][n];
 
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                adj[j][i] = Math.pow(-1, i + j) * determinante(sub(m, i, j));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                adjunta[j][i] = Math.pow(-1, i + j) * determinante(submatriz(matriz, i, j));
+            }
+        }
 
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                adj[i][j] = (int)(adj[i][j] / det);
+        double[][] inversa = new double[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                inversa[i][j] = adjunta[i][j] / det;
+            }
+        }
 
-        return adj;
+        return inversa;
     }
 }
